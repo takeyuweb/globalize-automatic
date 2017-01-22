@@ -13,6 +13,15 @@
 
 ActiveRecord::Schema.define(version: 20170121081242) do
 
+  create_table "post_automatic_translations", force: :cascade do |t|
+    t.integer  "post_id",                             null: false
+    t.string   "locale",                              null: false
+    t.boolean  "title_automatically", default: false, null: false
+    t.boolean  "text_automatically",  default: false, null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
   create_table "post_translations", force: :cascade do |t|
     t.integer  "post_id",    null: false
     t.string   "locale",     null: false
@@ -28,14 +37,6 @@ ActiveRecord::Schema.define(version: 20170121081242) do
   create_table "posts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "posts_automatic_translations", force: :cascade do |t|
-    t.integer  "post_id",                       null: false
-    t.string   "locale",                        null: false
-    t.boolean  "automatically", default: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
   end
 
 end

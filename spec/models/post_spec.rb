@@ -86,30 +86,30 @@ RSpec.describe Post, type: :model do
     it do
       with_test_class(translate_options: [[:title, automatic: :en]]) do |klass|
         post = klass.new
-        expect(post.title_en_automatic).to be_falsey
-        expect(post.title_ja_automatic).to be_truthy
-        expect(post.title_fr_automatic).to be_truthy
-        expect(post.title_zh_hans_automatic).to be_truthy
-        expect(post.title_zh_hant_automatic).to be_truthy
-        expect(post.title_ko_automatic).to be_truthy
-        expect(post.title_th_automatic).to be_truthy
-        expect(post.title_vi_automatic).to be_truthy
-        expect(post.title_fr_automatic).to be_truthy
+        expect(post.title_en_automatically).to be_falsey
+        expect(post.title_ja_automatically).to be_truthy
+        expect(post.title_fr_automatically).to be_truthy
+        expect(post.title_zh_hans_automatically).to be_truthy
+        expect(post.title_zh_hant_automatically).to be_truthy
+        expect(post.title_ko_automatically).to be_truthy
+        expect(post.title_th_automatically).to be_truthy
+        expect(post.title_vi_automatically).to be_truthy
+        expect(post.title_fr_automatically).to be_truthy
       end
     end
 
     it do
       with_test_class(translate_options: [[:title, automatic: %i(en ja)]]) do |klass|
         post = klass.new
-        expect(post.title_en_automatic).to be_falsey
-        expect(post.title_ja_automatic).to be_falsey
-        expect(post.title_fr_automatic).to be_truthy
-        expect(post.title_zh_hans_automatic).to be_truthy
-        expect(post.title_zh_hant_automatic).to be_truthy
-        expect(post.title_ko_automatic).to be_truthy
-        expect(post.title_th_automatic).to be_truthy
-        expect(post.title_vi_automatic).to be_truthy
-        expect(post.title_fr_automatic).to be_truthy
+        expect(post.title_en_automatically).to be_falsey
+        expect(post.title_ja_automatically).to be_falsey
+        expect(post.title_fr_automatically).to be_truthy
+        expect(post.title_zh_hans_automatically).to be_truthy
+        expect(post.title_zh_hant_automatically).to be_truthy
+        expect(post.title_ko_automatically).to be_truthy
+        expect(post.title_th_automatically).to be_truthy
+        expect(post.title_vi_automatically).to be_truthy
+        expect(post.title_fr_automatically).to be_truthy
       end
     end
 
@@ -128,8 +128,8 @@ RSpec.describe Post, type: :model do
     it do
       with_test_class(translate_options: [[:title, automatic: {from: :en, to: %i(fr zh-hans)}]]) do |klass|
         post = klass.new
-        expect(post.title_en_automatic).to be_falsey
-        expect(post).to_not be_respond_to(:title_ja_automatic)
+        expect(post.title_en_automatically).to be_falsey
+        expect(post).to_not be_respond_to(:title_ja_automatically)
       end
 
     end
@@ -137,45 +137,45 @@ RSpec.describe Post, type: :model do
     it do
       with_test_class(translate_options: [[:title, automatic: {from: %i(en ja), to: :fr}]]) do |klass|
         post = klass.new
-        expect(post.title_en_automatic).to be_falsey
-        expect(post.title_ja_automatic).to be_falsey
+        expect(post.title_en_automatically).to be_falsey
+        expect(post.title_ja_automatically).to be_falsey
       end
     end
 
     it do
       with_test_class(translate_options: [[:title, automatic: {from: %i(en ja), to: %i(fr zh-hans)}]]) do |klass|
         post = klass.new
-        expect(post.title_en_automatic).to be_falsey
-        expect(post.title_ja_automatic).to be_falsey
-        expect(post.title_fr_automatic).to be_truthy
-        expect(post.title_zh_hans_automatic).to be_truthy
-        expect(post).to_not be_respond_to(:title_zh_hant_automatic)
+        expect(post.title_en_automatically).to be_falsey
+        expect(post.title_ja_automatically).to be_falsey
+        expect(post.title_fr_automatically).to be_truthy
+        expect(post.title_zh_hans_automatically).to be_truthy
+        expect(post).to_not be_respond_to(:title_zh_hant_automatically)
       end
     end
 
     it '同じフィールドに対して２回指定した場合最後に指定された方' do
       with_test_class(translate_options: [[:title, automatic: %i(en ja)], [:title, automatic: :fr]]) do |klass|
         post = klass.new
-        expect(post.title_en_automatic).to be_truthy
-        expect(post.title_ja_automatic).to be_truthy
-        expect(post.title_fr_automatic).to be_falsey
-        expect(post.title_zh_hans_automatic).to be_truthy
-        expect(post.title_zh_hant_automatic).to be_truthy
-        expect(post.title_ko_automatic).to be_truthy
-        expect(post.title_th_automatic).to be_truthy
-        expect(post.title_vi_automatic).to be_truthy
+        expect(post.title_en_automatically).to be_truthy
+        expect(post.title_ja_automatically).to be_truthy
+        expect(post.title_fr_automatically).to be_falsey
+        expect(post.title_zh_hans_automatically).to be_truthy
+        expect(post.title_zh_hant_automatically).to be_truthy
+        expect(post.title_ko_automatically).to be_truthy
+        expect(post.title_th_automatically).to be_truthy
+        expect(post.title_vi_automatically).to be_truthy
       end
     end
 
     it '異なるフィールドに対して指定した場合別々に' do
       with_test_class(translate_options: [[:title, automatic: %i(en ja)], [:text, automatic: :fr]]) do |klass|
         post = klass.new
-        expect(post.title_en_automatic).to be_falsey
-        expect(post.title_ja_automatic).to be_falsey
-        expect(post.title_fr_automatic).to be_truthy
-        expect(post.text_en_automatic).to be_truthy
-        expect(post.text_ja_automatic).to be_truthy
-        expect(post.text_fr_automatic).to be_falsey
+        expect(post.title_en_automatically).to be_falsey
+        expect(post.title_ja_automatically).to be_falsey
+        expect(post.title_fr_automatically).to be_truthy
+        expect(post.text_en_automatically).to be_truthy
+        expect(post.text_ja_automatically).to be_truthy
+        expect(post.text_fr_automatically).to be_falsey
       end
     end
 
@@ -184,12 +184,12 @@ RSpec.describe Post, type: :model do
         with_test_class(translate_options: [[:title, automatic: %i(en ja)]]) do |superclass|
           with_test_class(superclass: superclass, translate_options: [[:text, automatic: :fr]]) do |klass|
             post = klass.new
-            expect(post.title_en_automatic).to be_falsey
-            expect(post.title_ja_automatic).to be_falsey
-            expect(post.title_fr_automatic).to be_truthy
-            expect(post.text_en_automatic).to be_truthy
-            expect(post.text_ja_automatic).to be_truthy
-            expect(post.text_fr_automatic).to be_falsey
+            expect(post.title_en_automatically).to be_falsey
+            expect(post.title_ja_automatically).to be_falsey
+            expect(post.title_fr_automatically).to be_truthy
+            expect(post.text_en_automatically).to be_truthy
+            expect(post.text_ja_automatically).to be_truthy
+            expect(post.text_fr_automatically).to be_falsey
           end
         end
 
@@ -199,108 +199,161 @@ RSpec.describe Post, type: :model do
 
   end
 
-=begin
+  describe '自動翻訳動作' do
+    before :all do
+      @_translator = Globalize::Automatic.translator
+      translator = Class.new(Globalize::Automatic::Translator) do
+        def translate(text, from, to)
+          "#{text} (#{from} => #{to})"
+        end
+      end
+      Globalize::Automatic.translator = translator.new
+    end
 
-  it do
-    I18n.locale = :en
-    post = Post.new
-    post.title = 'globalize'
-    post.save!
-    expect(post.title).to eq('globalize')
+    after :all do
+      Globalize::Automatic.translator = @_translator
+    end
 
-    I18n.locale = :ja
-    expect(post.title).to eq(nil)
+    it do
+      I18n.locale = :en
+      post = Post.new
+      post.title = 'globalize'
+      post.save!
+      post.reload
+      expect(post.title).to eq('globalize')
 
-    I18n.locale = :fr
-    expect(post.title).to eq('globalize (fr)')
+      I18n.locale = :ja
+      expect(post.title).to eq(nil)
+
+      I18n.locale = :fr
+      expect(post.title).to eq('globalize (en => fr)')
+    end
+
+    it do
+      I18n.locale = :en
+      post = Post.new
+      post.title = 'globalize'
+      post.save!
+      post.reload
+      expect(post.title).to eq('globalize')
+
+      I18n.locale = :ja
+      expect(post.title).to eq(nil)
+
+      I18n.locale = :fr
+      expect(post.title).to eq('globalize (en => fr)')
+    end
+
+    it do
+      post = Post.new
+      post.attributes = {
+          title_en: 'globalize',
+          title_ja_automatically: true
+      }
+      post.save!
+      post.reload
+
+      I18n.locale = :en
+      expect(post.title).to eq('globalize')
+      I18n.locale = :ja
+      expect(post.title).to eq('globalize (en => ja)')
+    end
+
+    it do
+      post = Post.new
+      post.attributes = {
+          title_en: 'globalize',
+          title_fr_automatically: false,
+          title_fr: 'Hoge'
+      }
+      post.save!
+      post.reload
+
+      I18n.locale = :en
+      expect(post.title).to eq('globalize')
+      I18n.locale = :vi
+      expect(post.title).to eq('globalize (en => vi)')
+      I18n.locale = :fr
+      expect(post.title).to eq('Hoge')
+    end
+
+    it do
+      post = Post.new
+      post.attributes = {
+          title_en: 'English',
+          title_ja: '日本語'
+      }
+      post.save!
+      post.reload
+
+      I18n.locale = :fr
+      expect(post.title).to eq('English (en => fr)')
+    end
+
+    it do
+      post = Post.new
+      post.attributes = {
+          title_en: nil,
+          title_ja: '日本語'
+      }
+      post.save!
+      post.reload
+
+      I18n.locale = :fr
+      expect(post.title).to eq('日本語 (ja => fr)')
+    end
+
+    it do
+      globalize_attribute_names = %i(
+        title_ja title_en title_zh_hans title_zh_hant title_ko title_th title_vi title_fr
+        text_ja text_en text_zh_hans text_zh_hant text_ko text_th text_vi text_fr)
+      expect(Post.globalize_attribute_names).to contain_exactly(*globalize_attribute_names)
+    end
+
+    it '.automatic_translation_attribute_names' do
+      automatic_translation_attribute_names = %i(
+        title_ja_automatically
+        title_en_automatically
+        title_zh_hans_automatically
+        title_zh_hant_automatically
+        title_ko_automatically
+        title_th_automatically
+        title_vi_automatically
+        title_fr_automatically
+        text_ja_automatically
+        text_en_automatically
+        text_zh_hans_automatically
+        text_zh_hant_automatically
+        text_ko_automatically
+        text_th_automatically
+        text_vi_automatically
+        text_fr_automatically
+      )
+      expect(Post.automatic_translation_attribute_names).to contain_exactly(*automatic_translation_attribute_names)
+    end
+
+    describe '非同期翻訳' do
+
+      let(:post) { Post.new(title_en: 'globalize') }
+
+      before { @asynchronously = Globalize::Automatic.asynchronously }
+      after { Globalize::Automatic.asynchronously = @asynchronously }
+
+      it do
+        Globalize::Automatic.asynchronously = false
+        expect(Globalize::Automatic::TranslationJob).to receive(:perform_now).at_least(1)
+        post.save!
+      end
+
+      it do
+        Globalize::Automatic.asynchronously = true
+        expect(Globalize::Automatic::TranslationJob).to receive(:perform_later).at_least(1)
+        post.save!
+      end
+
+    end
+
+
   end
-
-  it do
-    I18n.locale = :en
-    post = Post.new
-    post.title = 'globalize'
-    post.save!
-    expect(post.title).to eq('globalize')
-
-    I18n.locale = :ja
-    expect(post.title).to eq(nil)
-
-    I18n.locale = :fr
-    expect(post.title).to eq('globalize (fr)')
-  end
-
-  it do
-    post = Post.new
-    post.attributes = {
-        title_en: 'globalize',
-        title_ja_automatic: true
-    }
-    post.save!
-
-    I18n.locale = :en
-    expect(post.title).to eq('globalize')
-    I18n.locale = :ja
-    expect(post.title).to eq('globalize (ja)')
-  end
-
-  it do
-    post = Post.new
-    post.attributes = {
-        title_en: 'globalize',
-        title_fr_automatic: false,
-        title_fr: 'Hoge'
-    }
-    post.save!
-
-    I18n.locale = :en
-    expect(post.title).to eq('globalize')
-    I18n.locale = :vi
-    expect(post.title).to eq('globalize (vi)')
-    I18n.locale = :fr
-    expect(post.title).to eq('Hoge')
-  end
-
-  it do
-    post = Post.new
-    post.attributes = {
-        title_en: 'English',
-        title_ja: '日本語'
-    }
-    post.save!
-
-    I18n.locale = :fr
-    expect(post.title).to eq('English (fr)')
-  end
-
-  it do
-    post = Post.new
-    post.attributes = {
-        title_en: nil,
-        title_ja: '日本語'
-    }
-    post.save!
-
-    I18n.locale = :fr
-    expect(post.title).to eq('日本語 (fr)')
-  end
-
-  it do
-    globalize_attribute_names = %i(
-      title_ja title_en title_zh_hans title_zh_hant title_ko title_th title_vi title_fr text_ja
-      text_en text_zh_hans text_zh_hant text_ko text_th text_vi text_fr
-    )
-    expect(Post.globalize_attribute_names).to contain_exactly(*globalize_attribute_names)
-  end
-
-  it do
-    automatic_translation_attribute_names = %i(
-      title_ja_automatically title_en_automatically title_zh_hans_automatically title_zh_hant_automatically
-      title_ko_automatically title_th_automatically title_vi_automatically title_fr_automatically text_ja_automatically
-      text_en_automatically text_zh_hans_automatically text_zh_hant_automatically
-      text_ko_automatically text_th_automatically text_vi_automatically text_fr_automatically
-    )
-    expect(Post.automatic_translation_attribute_names).to contain_exactly(*automatic_translation_attribute_names)
-  end
-=end
 
 end

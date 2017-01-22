@@ -1,23 +1,26 @@
 # frozen_string_literal: true
 
-require 'globalize-automatic'
-
 class Globalize::Automatic::Translator
 
   def run(automatic_translation, attr_name)
-    process(automatic_translation, attr_name)
+    translation = automatic_translation.translation_from(attr_name)
+    text = translation[attr_name]
+    from = translation.locale
+    to = automatic_translation.locale
+    _text, _from, _to = before_translate(text, from, to)
+    translated = translate(_text, _from, _to)
+    _text, _from, _to, _translated = after_translate(_text, _from, _to, translated)
+    automatic_translation.resolve(attr_name, _translated)
   end
 
   def translate(text, from, to); end
 
-  private
-  def process(automatic_translation, attr_name)
-    translation = automatic_translation.translation_from
-    text = translation[attr_name]
-    from = translation.locale
-    to = automatic_translation.to
-    translated = translate(text, from, to)
-    automatic_translation.resolve(attr_name, translated)
+  def before_translate(text, from, to)
+    [text, from, to]
+  end
+
+  def after_translate(text, from, to, result)
+    [text, from, to, result]
   end
 
 end

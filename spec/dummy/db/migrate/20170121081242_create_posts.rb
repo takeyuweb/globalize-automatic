@@ -7,7 +7,7 @@ class CreatePosts < ActiveRecord::Migration
     reversible do |dir|
       dir.up do
         Post.create_translation_table! title: :string, text: :text
-        Post.create_automatic_translation_table!
+        Post.create_automatic_translation_table! :title, :text
       end
 
       dir.down do

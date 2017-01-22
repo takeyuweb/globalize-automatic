@@ -1,24 +1,44 @@
 class Globalize::Automatic::Translation < ActiveRecord::Base
   self.abstract_class = true
 
-  def from_locale
-    :en
+  def from_locale(attr_name)
+    automatic_translated_model.automatic_translation_locale(attr_name)
   end
 
-  def translation_from
-    automatic_translated_model.translation_for(from_locale)
+  def translation_from(attr_name)
+    translation_for(from_locale(attr_name))
   end
 
   def translation_to
-    automatic_translated_model.translation_for(locale)
+    translation_for(locale)
+  end
+
+  def translation_for(target_locale)
+    automatic_translated_model.translation_for(target_locale)
+  end
+
+  def translate(attr_name)
+    if automatically_for?(attr_name)
+      Globalize::Automatic.asynchronously ?
+          Globalize::Automatic::TranslationJob.perform_later(self, attr_name) :
+          Globalize::Automatic::TranslationJob.perform_now(self, attr_name)
+    end
   end
 
   def resolve(attr_name, translated)
-
+    obj = translation_to
+    obj.transaction do
+      obj.lock!
+      obj[attr_name] = translated
+      obj.save!(validate: false)
+    end
   end
 
-  def reject
+  def reject(attr_name, error); end
 
+  private
+  def automatically_for?(attr_name)
+    self[self.class.automatically_column_name(attr_name)]
   end
 
   class << self
@@ -45,11 +65,11 @@ class Globalize::Automatic::Translation < ActiveRecord::Base
       end
     end
 
-    private
     def automatically_column_name(field)
       :"#{field}_automatically"
     end
 
+    private
     def automatically_column_args(field)
       args = [automatically_column_name(field), default: false, null: false]
     end

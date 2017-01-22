@@ -3,13 +3,24 @@
 require 'globalize'
 require 'globalize-accessors'
 require 'globalize/automatic/translation'
+require 'globalize/automatic/translation_job'
 require 'globalize/automatic/translator/easy_translate'
+require 'after_commit_action'
 
 module Globalize::Automatic
   mattr_accessor :asynchronously, :translator
 
-  module Concern
+  module TranslatedExtension
     extend ActiveSupport::Concern
+
+    included do
+      class_attribute :automatic_translation_attribute_names,
+                      :automatic_translation_field_locales,
+                      :automatic_translated_field_locales
+      self.automatic_translation_attribute_names = []
+      self.automatic_translation_field_locales = Hash.new { [] }
+      self.automatic_translated_field_locales = Hash.new { [] }
+    end
 
     class_methods do
       def automatic_translation_class
@@ -31,27 +42,28 @@ module Globalize::Automatic
         @automatic_translation_class = klass
       end
 
-      def add_automatic_translated_fields!(fields, locales)
+      # 翻訳元フィールドと言語
+      def add_automatic_translation_field_locales!(fields, locales)
         fields.each do |field|
-          automatic_translated_fields[field] = locales
+          automatic_translation_field_locales[field] = locales
         end
       end
 
-      def field_translate_automatic?(field, locale)
-        if automatic_translated_fields[field].include?(locale)
-          true
-        else
-          if superclass.include?(Globalize::Automatic::Concern)
-            superclass.field_translate_automatic?(field, locale)
-          else
-            false
-          end
+      # 翻訳先フィールドと言語
+      def add_automatic_translated_field_locales!(fields, locales)
+        fields.each do |field|
+          automatic_translated_field_locales[field] = locales
         end
       end
 
-      private
-      def automatic_translated_fields
-        @automatic_translated_fields ||= Hash.new { [] }
+      # field が locale で自動翻訳元指定されているか
+      def translate_field_automatically?(field, locale)
+        automatic_translation_field_locales[field].include?(locale)
+      end
+
+      # field が locale で自動翻訳先指定されているか
+      def translated_field_automatically?(field, locale)
+        automatic_translated_field_locales[field].include?(locale)
       end
 
       public
@@ -74,51 +86,112 @@ module Globalize::Automatic
           first_or_initialize(default_translation_automatically(locale))
     end
 
+    # from_locale から attribute_names を自動翻訳
+    # 自動翻訳が対象でない場合なにもしない
+    def run_automatic_translation(from_locale: , attribute_names:)
+      attribute_names.each do |attr_name|
+        # 自動翻訳対象以外
+        next unless automatic_translation_field_locales[attr_name].include?(from_locale)
+        # 自動翻訳先としては無効化されている
+        next if automatic_translation_for(from_locale)[:"#{attr_name}_automatically"]
+        automatic_translated_field_locales[attr_name].each do |to_locale|
+          next if to_locale == from_locale
+          automatic_translation_for(to_locale).translate(attr_name)
+        end
+      end
+      true
+    end
+
+    # 自動翻訳元言語
+    # attr_nameの自動変換が有効なとき
+    # 現在設定されている中で一番優先度の高い翻訳元localeを返す
+    # どの言語も設定されてない場合は一番優先度の高いもの
+    # 自動翻訳元でない場合nil
+    def automatic_translation_locale(attr_name)
+      locales = automatic_translation_field_locales[attr_name]
+      locales.each do |locale|
+        return locale unless translation_for(locale)[attr_name].blank?
+      end
+      locales.first
+    end
+
     private
     def default_translation_automatically(locale)
+      # 自動翻訳元指定されていなくて、
+      # 自動翻訳先指定されているものを
+      # デフォルトで自動翻訳ONにする
       translated_attribute_names.inject({}) do |defaults, attr_name|
-        defaults[:"#{attr_name}_automatically"] = self.class.field_translate_automatic?(attr_name, locale)
+        defaults[:"#{attr_name}_automatically"] =
+            self.class.translated_field_automatically?(attr_name, locale) &&
+                !self.class.translate_field_automatically?(attr_name, locale)
         defaults
       end
     end
 
   end
 
+  module TranslationExtension
+    extend ActiveSupport::Concern
+    included do
+      include AfterCommitAction unless include?(AfterCommitAction)
+      after_save :after_save
+    end
+
+    private
+    def after_save
+      changed_attr_names =
+          globalized_model.translated_attribute_names & changes.keys.map(&:to_sym)
+
+      execute_after_commit do
+        globalized_model.run_automatic_translation(from_locale: locale,
+                                                   attribute_names: changed_attr_names)
+        true
+      end
+      true
+    end
+  end
 
   module_function
 
   def setup_automatic_translation!(klass, attr_names, options)
     automatic_options = validate_options(parse_options(options))
-    locales = automatic_options[:from] + automatic_options[:to]
+    locales = (automatic_options[:from] + automatic_options[:to]).uniq
     klass.globalize_accessors locales: locales, attributes: attr_names
-    unless klass.include?(Globalize::Automatic::Concern)
-      klass.include Globalize::Automatic::Concern
+    unless klass.include?(Globalize::Automatic::TranslatedExtension)
+      klass.include Globalize::Automatic::TranslatedExtension
 
       klass.has_many :automatic_translations,
                      dependent: :destroy,
                      autosave: true,
                      class_name: klass.automatic_translation_class.name,
-                     foreign_key: klass.name.foreign_key
+                     foreign_key: klass.name.foreign_key,
+                     inverse_of: :automatic_translated_model
       automatic_table_name = "#{klass.table_name.singularize}_automatic_translations"
       klass.automatic_translation_class.table_name = automatic_table_name
       klass.automatic_translation_class.define_singleton_method(:table_name) { automatic_table_name }
     end
 
-    #klass.add_automatic_translation_originals!(automatic_options[:from])
-    klass.add_automatic_translated_fields!(attr_names, automatic_options[:to])
+    klass.add_automatic_translation_field_locales!(attr_names, automatic_options[:from])
+    klass.add_automatic_translated_field_locales!(attr_names, automatic_options[:to])
 
     attr_names.each do |attr_name|
       locales.each do |locale|
         klass.class_eval(<<"EVAL")
-        def #{attr_name}_#{locale.to_s.underscore}_automatic
+        def #{attr_name}_#{locale.to_s.underscore}_automatically
           automatic_translation_for(#{locale.inspect}).#{attr_name}_automatically
         end
 
-        def #{attr_name}_#{locale.to_s.underscore}_automatic=(automatically)
+        def #{attr_name}_#{locale.to_s.underscore}_automatically=(automatically)
           automatic_translation_for(#{locale.inspect}).#{attr_name}_automatically = automatically
         end
+ 
+        self.automatic_translation_attribute_names.push(:#{attr_name}_#{locale.to_s.underscore}_automatically)
 EVAL
       end
+    end
+
+    unless klass.translation_class.include?(Globalize::Automatic::TranslationExtension)
+      klass.translation_class.include Globalize::Automatic::TranslationExtension
     end
   end
 
@@ -129,7 +202,7 @@ EVAL
         to_locales = normalize_locales(options[:to])
       else
         from_locales = normalize_locales(options)
-        to_locales = I18n.available_locales - from_locales
+        to_locales = I18n.available_locales
     end
     {from: from_locales, to: to_locales}
   end

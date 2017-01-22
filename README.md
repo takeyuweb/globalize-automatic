@@ -7,6 +7,20 @@ Globalize Automatic
 gem install globalize-automatic
 ```
 
+### Rails 5.0
+
+In your Gemfile
+
+```ruby
+gem 'globalize-automatic', github: 'takeyuweb/globalize-automatic', branch: 'rails-5-0'
+```
+
+and
+
+```bash
+bundle install
+```
+
 ## Configuration
 
 ```ruby
@@ -47,11 +61,29 @@ end
 ```ruby
 class CreatePostAutomatics < ActiveRecord::Migration
   def up
-    Post.create_automatic_translation_table!
+    Post.create_translation_table! title: :string, text: :text
+    Post.create_automatic_translation_table! :title, :text
   end
     
   def down
+    Post.drop_translation_table!
     Post.drop_automatic_translation_table!
+  end
+end
+```
+
+#### 自動翻訳対象を追加
+
+```ruby
+class AddPostAutomatics < ActiveRecord::Migration
+  def up
+    Post.add_translation_fields! description: :text
+    Post.add_automatic_translation_fields! :description
+  end
+    
+  def down
+    remove_column :post_automatic_translations, :description
+    remove_column :post_automatic_translations, :description_automatically
   end
 end
 ```
@@ -68,6 +100,8 @@ post.save!
 post.title_ja_automatic # => false
 post.title_vi_automatic # => true
 
+post.reload
+
 I18n.locale = :ja
 post.title # => nil
 I18n.locale = :vi
@@ -80,6 +114,8 @@ post.attributes = {
    title_ja_automatic: true
 }
 post.save!
+
+post.reload
 
 I18n.locale = :en
 post.title # => 'globalize'
@@ -96,6 +132,8 @@ post.attributes = {
    title_fr: 'Hoge'
 }
 post.save!
+
+post.reload
 
 I18n.locale = :en
 post.title # => 'globalize'
@@ -120,6 +158,8 @@ post.attributes = {
 }
 post.save!
 
+post.reload
+
 I18n.locale = :fr
 post.title # => 'Anglais' # It means 'English'.
 ```
@@ -136,6 +176,8 @@ post.attributes = {
     title_ja: '日本語'
 }
 post.save!
+
+post.reload
 
 I18n.locale = :fr
 post.title # => 'Japonais' # It means '日本語'.
@@ -166,13 +208,39 @@ params.require(:post).permit(*permitted)
 
 ### 非同期
 
-
+ActiveJobを利用による非同期翻訳
 
 ```ruby
 # config/initializers/globalize_automatic.rb
 Globalize::Automatic.asynchronously = true
 ```
 
+### 他の翻訳ライブラリやサービスへの対応
+
+Translatorクラスを書けば対応できます。
+
+```ruby
+class YourTranslator < Globalize::Automatic::Translator
+  def translate(text, from, to)
+    # 適当な翻訳処理を行って訳文を返す
+    return translated
+  end
+end
+
+Globalize::Automatic.translator = YourTranslator::EasyTranslate.new
+```
+
+## TODO
+
+- EasyTranslate依存の切り出し
+  - 他の翻訳ライブラリやサービスへの対応。
+    - Microsoft Translator
+    - Gengo etc
+
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/takeyuweb/globalize_automatic. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the Contributor Covenant code of conduct.
 
 ## Licence
 

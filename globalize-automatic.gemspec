@@ -16,7 +16,10 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'globalize', '~> 5.0'
   s.add_dependency 'globalize-accessors'
+  s.add_dependency 'after_commit_action'
   s.add_dependency 'easy_translate'
+  s.add_dependency 'activerecord'
+  s.add_dependency 'activejob'
 
   s.add_development_dependency 'rails', '~> 4.2.0'
   s.add_development_dependency 'sqlite3'
