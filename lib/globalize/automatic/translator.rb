@@ -3,6 +3,7 @@
 class Globalize::Automatic::Translator
 
   def run(automatic_translation, attr_name)
+    attr_name = attr_name.to_sym
     translation = automatic_translation.translation_from(attr_name)
     text = translation[attr_name]
     from = translation.locale

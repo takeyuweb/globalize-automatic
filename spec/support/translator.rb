@@ -43,6 +43,11 @@ RSpec.shared_examples 'Globalize::Automatic::Translator' do |translator|
       expect(automatic_translation).to receive(:resolve).with(attr_name, translated).and_return(true)
       translator.run(automatic_translation, attr_name)
     end
+
+    it 'call translate(text, from, to) when string attr_name' do
+      expect(translator).to receive(:translate).with(text, from, to).and_return(translated)
+      translator.run(automatic_translation, attr_name.to_s)
+    end
   end
 
   describe '#before_translate(text, from, to)' do

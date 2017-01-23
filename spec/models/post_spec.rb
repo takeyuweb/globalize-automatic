@@ -391,13 +391,13 @@ RSpec.describe Post, type: :model do
 
       it do
         Globalize::Automatic.asynchronously = false
-        expect(Globalize::Automatic::TranslationJob).to receive(:perform_now).at_least(1)
+        expect(Globalize::Automatic::TranslationJob).to receive(:perform_now).with(an_instance_of(Post::AutomaticTranslation), 'title').at_least(1)
         post.save!
       end
 
       it do
         Globalize::Automatic.asynchronously = true
-        expect(Globalize::Automatic::TranslationJob).to receive(:perform_later).at_least(1)
+        expect(Globalize::Automatic::TranslationJob).to receive(:perform_later).with(an_instance_of(Post::AutomaticTranslation), 'title').at_least(1)
         post.save!
       end
 

@@ -22,8 +22,8 @@ class Globalize::Automatic::Translation < ActiveRecord::Base
   def translate(attr_name)
     if automatically_for?(attr_name)
       Globalize::Automatic.asynchronously ?
-          Globalize::Automatic::TranslationJob.perform_later(self, attr_name) :
-          Globalize::Automatic::TranslationJob.perform_now(self, attr_name)
+          Globalize::Automatic::TranslationJob.perform_later(self, attr_name.to_s) :
+          Globalize::Automatic::TranslationJob.perform_now(self, attr_name.to_s)
     end
   end
 
