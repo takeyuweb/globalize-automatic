@@ -173,13 +173,15 @@ module Globalize::Automatic
 
     private
     def after_save
-      changed_attr_names =
-          globalized_model.translated_attribute_names & changes.keys.map(&:to_sym)
+      if globalized_model
+        changed_attr_names =
+            globalized_model.translated_attribute_names & changes.keys.map(&:to_sym)
 
-      execute_after_commit do
-        globalized_model.run_automatic_translation(from_locale: locale,
-                                                   attribute_names: changed_attr_names)
-        true
+        execute_after_commit do
+          globalized_model.run_automatic_translation(from_locale: locale,
+                                                     attribute_names: changed_attr_names)
+          true
+        end
       end
       true
     end
