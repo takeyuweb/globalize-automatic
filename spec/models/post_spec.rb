@@ -179,6 +179,14 @@ RSpec.describe Post, type: :model do
       end
     end
 
+    it '自動翻訳先でないものは_automaticallyを作らない' do
+      with_test_class(translate_options: [[:title, automatic: :en], [:text]]) do |klass|
+        post = klass.new
+        expect(post).to be_respond_to(:title_en_automatically)
+        expect(post).to_not be_respond_to(:text_en_automatically)
+      end
+    end
+
     describe 'STI対応' do
       it '' do
         with_test_class(translate_options: [[:title, automatic: %i(en ja)]]) do |superclass|

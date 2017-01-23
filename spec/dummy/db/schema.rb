@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20170121081242) do
     t.datetime "updated_at", null: false
     t.string   "title"
     t.text     "text"
+    t.string   "author"
   end
 
   add_index "post_translations", ["locale"], name: "index_post_translations_on_locale"

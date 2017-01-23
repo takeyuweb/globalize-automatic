@@ -2,9 +2,6 @@
 
 require 'globalize'
 require 'globalize-accessors'
-require 'globalize/automatic/translation'
-require 'globalize/automatic/translation_job'
-require 'globalize/automatic/translator/easy_translate'
 require 'after_commit_action'
 
 module Globalize::Automatic
@@ -120,10 +117,17 @@ module Globalize::Automatic
       # 自動翻訳元指定されていなくて、
       # 自動翻訳先指定されているものを
       # デフォルトで自動翻訳ONにする
+      #
+      # 自動翻訳元指定されていて
+      # 自動翻訳先指定されているものは
+      # デフォルトで自動翻訳OFFにする　
+      #
+      # 自動翻訳先指定されていないものは対象外
       translated_attribute_names.inject({}) do |defaults, attr_name|
-        defaults[:"#{attr_name}_automatically"] =
-            self.class.translated_field_automatically?(attr_name, locale) &&
-                !self.class.translate_field_automatically?(attr_name, locale)
+        if self.class.translated_field_automatically?(attr_name, locale)
+          defaults[:"#{attr_name}_automatically"] =
+              !self.class.translate_field_automatically?(attr_name, locale)
+        end
         defaults
       end
     end
@@ -221,6 +225,11 @@ EVAL
     end
   end
 end
+
+require 'globalize/automatic/translation'
+require 'globalize/automatic/translation_job'
+require 'globalize/automatic/translator/easy_translate'
+
 Globalize::Automatic.asynchronously = false
 Globalize::Automatic.translator = Globalize::Automatic::Translator::EasyTranslate.new
 
