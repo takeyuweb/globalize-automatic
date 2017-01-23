@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Globalize::Automatic::VERSION
   s.authors     = ['Yuichi Takeuchi']
   s.email       = ['info@takeyu-web.com']
-  s.homepage    = 'htts://github.com/takeyuweb/globalize-automatic/'
+  s.homepage    = 'https://github.com/takeyuweb/globalize-automatic/'
   s.summary     = 'Adapter for using automatic translation gems with Globalize'
   s.description = 'Provides support for using automatic translation gems with Globalize.'
   s.license     = 'MIT'
