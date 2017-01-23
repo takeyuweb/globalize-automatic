@@ -212,7 +212,31 @@ RSpec.describe Post, type: :model do
     it { expect(Post.automatic_translation_attribute_name_for(:title, :'zh-TW')).to eq('title_zh_tw_automatically') }
   end
 
+  describe '.automatic_translation_for(locale)' do
+    fixtures 'posts', 'post/automatic_translations'
+    let(:post) { posts(:post) }
+    it '繰り返し参照した場合同じオブジェクトを使うこと' do
+      automatic_translation = post.automatic_translation_for(:ja)
+      expect(post.automatic_translation_for(:ja).object_id).to eq(automatic_translation.object_id)
+    end
+    it 'reloadでキャッシュを破棄すること' do
+      automatic_translation = post.automatic_translation_for(:ja)
+      post.reload
+      expect(post.automatic_translation_for(:ja).object_id).to_not eq(automatic_translation.object_id)
+    end
+    it 'dupで違うオブジェクトを参照すること' do
+      automatic_translation = post.automatic_translation_for(:ja)
+      expect(post.dup.automatic_translation_for(:ja).object_id).to_not eq(automatic_translation.object_id)
+    end
+    it 'dupで値を維持すること' do
+      automatic_translation = post.automatic_translation_for(:ja)
+      automatic_translation.title_automatically = ! automatic_translation.title_automatically
+      expect(post.dup.automatic_translation_for(:ja).title_automatically).to eq(automatic_translation.title_automatically)
+    end
+  end
+
   describe '自動翻訳動作' do
+    fixtures 'posts', 'post/automatic_translations'
     before :all do
       @_translator = Globalize::Automatic.translator
       translator = Class.new(Globalize::Automatic::Translator) do
@@ -314,6 +338,19 @@ RSpec.describe Post, type: :model do
 
       I18n.locale = :fr
       expect(post.title).to eq('日本語 (ja => fr)')
+    end
+
+    it '自動変換フラグのみの変更が可能なこと' do
+      post = posts(:post)
+      post.title_ja_automatically = true
+      post.save!
+      post.reload
+
+      expect {
+        post.title_ja_automatically = ! post.title_ja_automatically
+        post.save!
+        post.reload
+      }.to change(post, :title_ja_automatically)
     end
 
     it do

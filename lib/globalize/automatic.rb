@@ -17,6 +17,8 @@ module Globalize::Automatic
       self.automatic_translation_attribute_names = []
       self.automatic_translation_field_locales = Hash.new { [] }
       self.automatic_translated_field_locales = Hash.new { [] }
+
+      after_update :update_automatic_translations
     end
 
     class_methods do
@@ -84,8 +86,9 @@ module Globalize::Automatic
     end
 
     def automatic_translation_for(locale)
-      automatic_translations.where(locale: locale).
-          first_or_initialize(default_translation_automatically(locale))
+      automatic_translation_caches[locale] ||=
+          automatic_translations.where(locale: locale).
+              first_or_initialize(default_translation_automatically(locale))
     end
 
     # from_locale から attribute_names を自動翻訳
@@ -117,6 +120,20 @@ module Globalize::Automatic
       locales.first
     end
 
+    def reload(options = nil)
+      automatic_translation_caches.clear
+      automatic_translation_attribute_names.each { |attr_name| @attributes.reset(attr_name.to_s) }
+      super(options)
+    end
+
+    def initialize_dup(other)
+      @automatic_translation_caches = nil
+      super(other)
+      other.automatic_translation_attribute_names.each do |attr_name|
+        self.attributes = { attr_name => other.send(attr_name) }
+      end
+    end
+
     private
     def default_translation_automatically(locale)
       # 自動翻訳元指定されていなくて、
@@ -135,6 +152,14 @@ module Globalize::Automatic
         end
         defaults
       end
+    end
+
+    def automatic_translation_caches
+      @automatic_translation_caches ||= {}
+    end
+
+    def update_automatic_translations
+      automatic_translation_caches.values.flatten.each(&:save)
     end
 
   end

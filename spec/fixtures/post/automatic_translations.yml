@@ -1,0 +1,11 @@
+post_automatic_translation_ja:
+  post_id: post
+  locale: ja
+  title_automatically: true
+  text_automatically: true
+
+post_automatic_translation_en:
+  post_id: post
+  locale: en
+  title_automatically: false
+  text_automatically: false

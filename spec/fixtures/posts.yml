@@ -1,3 +1,2 @@
 post:
-  title: Title
-  text: Text
+  created_at: <%= Time.current.iso8601 %>
