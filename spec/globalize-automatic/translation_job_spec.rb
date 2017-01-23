@@ -4,6 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Globalize::Automatic::TranslationJob do
 
-  it_behaves_like 'Globalize::Automatic::TranslationJob'
+  it_behaves_like 'Globalize::Automatic::TranslationJob', Globalize::Automatic::TranslationJob
 
 end
