@@ -63,6 +63,11 @@ module Globalize::Automatic
         automatic_translated_field_locales[field].include?(locale)
       end
 
+      # 自動翻訳ON/OFF属性名
+      def automatic_translation_attribute_name_for(attr_name, locale)
+        "#{attr_name}_#{locale.to_s.underscore}_automatically"
+      end
+
       public
       def create_automatic_translation_table!(*fields)
         automatic_translation_class.create_table!(*fields)
@@ -181,15 +186,15 @@ module Globalize::Automatic
     attr_names.each do |attr_name|
       locales.each do |locale|
         klass.class_eval(<<"EVAL")
-        def #{attr_name}_#{locale.to_s.underscore}_automatically
+        def #{klass.automatic_translation_attribute_name_for(attr_name, locale)}
           automatic_translation_for(#{locale.inspect}).#{attr_name}_automatically
         end
 
-        def #{attr_name}_#{locale.to_s.underscore}_automatically=(automatically)
+        def #{klass.automatic_translation_attribute_name_for(attr_name, locale)}=(automatically)
           automatic_translation_for(#{locale.inspect}).#{attr_name}_automatically = automatically
         end
  
-        self.automatic_translation_attribute_names.push(:#{attr_name}_#{locale.to_s.underscore}_automatically)
+        self.automatic_translation_attribute_names.push(:#{klass.automatic_translation_attribute_name_for(attr_name, locale)})
 EVAL
       end
     end

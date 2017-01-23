@@ -207,6 +207,11 @@ RSpec.describe Post, type: :model do
 
   end
 
+  describe '.automatic_translation_attribute_name_for' do
+    it { expect(Post.automatic_translation_attribute_name_for(:title, :en)).to eq('title_en_automatically') }
+    it { expect(Post.automatic_translation_attribute_name_for(:title, :'zh-TW')).to eq('title_zh_tw_automatically') }
+  end
+
   describe '自動翻訳動作' do
     before :all do
       @_translator = Globalize::Automatic.translator
