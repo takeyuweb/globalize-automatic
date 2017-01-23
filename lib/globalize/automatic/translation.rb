@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 class Globalize::Automatic::Translation < ActiveRecord::Base
   self.abstract_class = true
 
@@ -43,8 +45,9 @@ class Globalize::Automatic::Translation < ActiveRecord::Base
 
   class << self
     def create_table!(*fields)
+      relation_name = automatic_translated_model_foreign_key.sub(/_id$/, '')
       connection.create_table(table_name) do |t|
-        t.references automatic_translated_model_foreign_key.sub(/_id$/, ''), null: false, index: true
+        t.references relation_name, null: false, index: { name: "index_#{Digest::MD5.hexdigest([table_name, relation_name].join('/'))}" }
         t.string :locale, null: false
         fields.each do |field|
           t.boolean *automatically_column_args(field)

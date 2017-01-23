@@ -22,6 +22,8 @@ ActiveRecord::Schema.define(version: 20170121081242) do
     t.datetime "updated_at",                          null: false
   end
 
+  add_index "post_automatic_translations", ["post_id"], name: "index_7092726451dc2e65910ef70f56e3893a"
+
   create_table "post_translations", force: :cascade do |t|
     t.integer  "post_id",    null: false
     t.string   "locale",     null: false
