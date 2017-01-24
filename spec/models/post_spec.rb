@@ -340,6 +340,33 @@ RSpec.describe Post, type: :model do
       expect(post.title).to eq('日本語 (ja => fr)')
     end
 
+    it do
+      post = Post.new
+      post.attributes = {
+          title_en: '英語設定済み',
+          title_en_automatically: false,
+          title_ja: '日本語設定済み',
+          title_ja_automatically: false
+      }
+      post.save!
+      post.reload
+
+      post.attributes = {
+          title_en: '英語設定済み',
+          title_en_automatically: true,
+          title_ja: '日本語を更新',
+          title_ja_automatically: false
+      }
+      post.save!
+      post.reload
+
+      I18n.locale = :en
+      expect(post.title).to eq('日本語を更新 (ja => en)')
+
+      I18n.locale = :fr
+      expect(post.title).to eq('日本語を更新 (ja => fr)')
+    end
+
     it '自動変換フラグのみの変更が可能なこと' do
       post = posts(:post)
       post.title_ja_automatically = true

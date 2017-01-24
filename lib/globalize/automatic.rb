@@ -109,12 +109,14 @@ module Globalize::Automatic
 
     # 自動翻訳元言語
     # attr_nameの自動変換が有効なとき
-    # 現在設定されている中で一番優先度の高い翻訳元localeを返す
+    # 現在翻訳元として設定されていてかつ自動変換が無効なものの中で
+    # 一番優先度の高い翻訳元localeを返す。
     # どの言語も設定されてない場合は一番優先度の高いもの
     # 自動翻訳元でない場合nil
     def automatic_translation_locale(attr_name)
       locales = automatic_translation_field_locales[attr_name]
       locales.each do |locale|
+        next if send(self.class.automatic_translation_attribute_name_for(attr_name, locale))
         return locale unless translation_for(locale)[attr_name].blank?
       end
       locales.first
