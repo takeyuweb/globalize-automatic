@@ -267,18 +267,17 @@ require 'globalize/automatic/translator/easy_translate'
 Globalize::Automatic.asynchronously = false
 Globalize::Automatic.translator = Globalize::Automatic::Translator::EasyTranslate.new
 
-Globalize::ActiveRecord::ActMacro.module_eval do
-
-  def translates_with_automatic(*attr_names)
-    translates_without_automatic(*attr_names).tap do
-      options = attr_names.extract_options!
-      automatic_options = options.delete(:automatic)
-      if automatic_options.present?
-        Globalize::Automatic.setup_automatic_translation!(self, attr_names, automatic_options)
+unless Globalize::ActiveRecord::ActMacro.public_instance_methods.include?(:translates_without_automatic)
+  module Globalize::ActiveRecord::ActMacro
+    alias :translates_without_automatic :translates
+    def translates(*attr_names)
+      translates_without_automatic(*attr_names).tap do
+        options = attr_names.extract_options!
+        automatic_options = options.delete(:automatic)
+        if automatic_options.present?
+          Globalize::Automatic.setup_automatic_translation!(self, attr_names, automatic_options)
+        end
       end
     end
   end
-
-  alias_method_chain :translates, :automatic
-
 end

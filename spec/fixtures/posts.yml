@@ -1,2 +1,3 @@
 post:
   created_at: <%= Time.current.iso8601 %>
+  updated_at: <%= Time.current.iso8601 %>

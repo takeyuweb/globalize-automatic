@@ -16,7 +16,7 @@ RSpec.describe Post, type: :model do
   describe 'translates *attr_names, automatic:' do
 
     def with_test_objects(klass)
-      migrator = Class.new(ActiveRecord::Migration)
+      migrator = Class.new(ActiveRecord::Migration[4.2])
 
       translation_column_types = klass.translated_attribute_names.inject({}) do |data, attr_name|
         data.tap { data[attr_name] = :string }

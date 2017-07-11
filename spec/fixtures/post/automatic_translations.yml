@@ -3,9 +3,13 @@ post_automatic_translation_ja:
   locale: ja
   title_automatically: true
   text_automatically: true
+  created_at: <%= Time.current.iso8601 %>
+  updated_at: <%= Time.current.iso8601 %>
 
 post_automatic_translation_en:
   post_id: post
   locale: en
   title_automatically: false
   text_automatically: false
+  created_at: <%= Time.current.iso8601 %>
+  updated_at: <%= Time.current.iso8601 %>
