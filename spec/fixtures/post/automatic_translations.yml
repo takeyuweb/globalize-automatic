@@ -1,5 +1,5 @@
 post_automatic_translation_ja:
-  post_id: post
+  post_id: 1
   locale: ja
   title_automatically: true
   text_automatically: true
@@ -7,7 +7,7 @@ post_automatic_translation_ja:
   updated_at: <%= Time.current.iso8601 %>
 
 post_automatic_translation_en:
-  post_id: post
+  post_id: 1
   locale: en
   title_automatically: false
   text_automatically: false
