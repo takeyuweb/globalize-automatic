@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
 
-  s.add_dependency 'globalize', '>= 6.0.0', '< 7'
+  s.add_dependency 'globalize', '>= 7.0.0', '< 8'
   s.add_dependency 'globalize-accessors'
   s.add_dependency 'after_commit_action'
   s.add_dependency 'easy_translate'
